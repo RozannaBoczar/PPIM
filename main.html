@@ -45,7 +45,9 @@
 <!-- <script src="https://cdn.jsdelivr.net/npm/hls.js@canary"></script> -->
 <script type="text/javascript">
             videoSrc = 'https://raw.githubusercontent.com/RozannaBoczar/PPIM/master/jefree/hsl_playlist1.m3u8';
+            
             loadVideo(videoSrc);
+			
             $(document).ready(function(){
                 $("#videoSelect").change(function() {
                 var videoValue = $(this).val();
@@ -78,8 +80,8 @@
                 var hls = new Hls();
                 hls.loadSource(videoSrc);
                 hls.attachMedia(video);
-                var text = document.getElementById('information');
-                text.innerHTML = hls.Level;
+                //var text = document.getElementById('information');
+                //text.innerHTML = hls.Level;
 
                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
                   video.play();
