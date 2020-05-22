@@ -1,0 +1,63 @@
+body, html {
+  height: 100%;
+}
+
+.bg {
+  /* The image used */
+  background-image: url("background.jpg");
+
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#left {
+float:left;
+width:50%;
+height: 100%;
+overflow:hidden;
+position: relative;
+
+  display:flex;
+}
+
+#right {
+  float:right;
+width:50%;
+height: 100%;
+overflow:hidden;
+position: relative;
+display:flex;
+}
+
+#wrapper {
+margin: 0;
+}
+
+#playlist{
+  position: relative;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom:0;
+  left: 0;
+  width: 640px;
+  height: 360px;
+}
+
+#up {
+  background-color: white;
+  position: relative;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom:0;
+  left: 0;
+  width: 640px;
+  height: 360px;
+
+}
