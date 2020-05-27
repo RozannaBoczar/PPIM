@@ -1,0 +1,127 @@
+<script type="text/javascript" src="jquery-2.1.1.js"></script>
+<link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
+<script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+<script src="https://unpkg.com/videojs-flash/dist/videojs-flash.min.js"></script>
+<script src="https://unpkg.com/videojs-contrib-quality-levels/dist/videojs-contrib-quality-levels.min.js"></script>
+<script src="https://unpkg.com/videojs-contrib-hls/dist/videojs-contrib-hls.min.js"></script>
+<script>
+	var options = {
+		html5:{
+			hls:{
+				enableLowInitialPlaylist:true
+			}
+		},
+		flash:{
+			hls:{
+				enableLowInitialPlaylist:true
+			}
+		},
+		inactivityTimeout:0,
+		controls:true,
+		autoplay:true,
+		preload:"auto",
+	};
+	
+	var player = videojs('example-video', options);
+	
+	var qLevels = [];
+	
+	player.qualityLevels().on('addqualitylevel', function(event) {
+		var quality = event.qualityLevel;
+		console.log(quality);
+		
+		if (quality.height != undefined && $.inArray(quality.height, qLevels) === -1)
+		{
+			quality.enabled = true;
+			
+			qLevels.push(quality.height);
+			
+			if (!$('.quality_ul').length)
+			{
+				var h = '<div class="quality_setting vjs-menu-button vjs-menu-button-popup vjs-control vjs-button">' +
+						'<button class="vjs-menu-button vjs-menu-button-popup vjs-button" type="button" aria-live="polite" aria-disabled="false" title="Quality" aria-haspopup="true" aria-expanded="false">' +
+						'<span aria-hidden="true" class="vjs-icon-cog"></span>' +
+						'<span class="vjs-control-text">Quality</span></button>' +
+						'<div class="vjs-menu"><ul class="quality_ul vjs-menu-content" role="menu"></ul></div></div>';
+				
+				$(".vjs-fullscreen-control").before(h);
+			} else {
+				$('.quality_ul').empty();
+			}
+			
+			qLevels.sort();
+			qLevels.reverse();
+			
+			var j = 0;
+			
+			$.each(qLevels, function(i, val) {
+				$(".quality_ul").append('<li class="vjs-menu-item" tabindex="' + i + '" role="menuitemcheckbox" aria-live="polite" aria-disabled="false" aria-checked="false" bitrate="' + val +
+										'"><span class="vjs-menu-item-text">' + val + 'p</span></li>');
+				
+				j = i;
+			});
+			
+			$(".quality_ul").append('<li class="vjs-menu-item vjs-selected" tabindex="' + (j + 1) + '" role="menuitemcheckbox" aria-live="polite" aria-disabled="false" aria-checked="true" bitrate="auto">' +
+									'<span class="vjs-menu-item-text">Auto</span></li>');
+		}
+	});
+	
+	$("body").on("click", ".quality_ul li", function() {
+		$(".quality_ul li").removeClass("vjs-selected");
+		$(".quality_ul li").prop("aria-checked", "false");
+		
+		$(this).addClass("vjs-selected");
+		$(this).prop("aria-checked", "true");
+		
+		var val = $(this).attr("bitrate");
+		
+		var qualityLevels = player.qualityLevels();
+		
+		for (var i = 0; i < qualityLevels.length; i++)
+		{
+			qualityLevels[i].enabled = (val == "auto" || (val != "auto" && qualityLevels[i].height == val));
+		}
+	});
+	if (Hls.isSupported()) {
+      var video = document.getElementById('video');
+		
+			 var config = {
+			 autoStartLoad: true
+	  };
+	
+		var hls = new Hls(config);
+  
+      // bind them together
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+        console.log("video and hls.js are now bound together !");
+        hls.loadSource("https://raw.githubusercontent.com/RozannaBoczar/PPIM/master/jefree/hsl_playlist1.m3u8");
+        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+          console.log("manifest loaded, found " + data.levels.length + " quality level");
+		  video.play();
+        });
+      });
+	  
+	  hls.on(Hls.Events.ERROR, function (event, data) {
+    if (data.fatal) {
+      switch(data.type) {
+      case Hls.ErrorTypes.NETWORK_ERROR:
+      // try to recover network error
+        console.log("fatal network error encountered, try to recover");
+        hls.startLoad();
+        break;
+      case Hls.ErrorTypes.MEDIA_ERROR:
+        console.log("fatal media error encountered, try to recover");
+        hls.recoverMediaError();
+        break;
+      default:
+      // cannot recover
+        hls.destroy();
+        break;
+      }
+    }
+  });
+  
+	  
+    }
+</script>
