@@ -29,7 +29,7 @@
        </select>
 
        <div id = "information">
-         hehehe
+        
        </div>
 
    </div>
@@ -82,18 +82,25 @@
                 var hls = new Hls();
                 hls.loadSource(videoSrc);
                 hls.attachMedia(video);
-                //var text = document.getElementById('information');
-                //text.innerHTML = hls.Level;
+                
 
                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
                   video.play();
+				  var text = document.getElementById('information');
+				  text.innerHTML = hls.levels;
+				  console.log(hls.levels);
+				  
                 });
               }
               else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = videoSrc;
                 video.addEventListener('loadedmetadata', function() {
+				
                   video.play();
+				  var text = document.getElementById('information');
+				  text.innerHTML = hls.levels;
 				  console.log(hls.levels);
+				  
                 });
               }
             }
