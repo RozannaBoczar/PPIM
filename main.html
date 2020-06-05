@@ -1,7 +1,8 @@
 <HTML>
-  <body class="bg" scroll="no" style="overflow: hidden">
+  <body class="bg" scroll="no" style="overflow: hidden" onload="playDefault()">
    <meta charset="utf-8">
     <head>
+      <title>RozannaBoczar_MicroProject</title>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <link rel="stylesheet" type="text/css" href="main.css">
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -22,19 +23,37 @@
 
           <div id="up">
 
-        <select id="videoSelect">
-         <option value="1">Jeffre Star</option>
-         <option value="2">BTS</option>
-         <option value="3">Anime</option>
-       </select>
+        <div style="text-align:center">
+        <span>Choose playlist</span>
+        <select id="videoSelect" onchange="choseVideo()">
+        <option value="0">Bunny</option>
+         <option value="1">AkamaiHD</option>
+         <option value="2">Something Very Serious</option>
+         <option value="3">Parkour</option>
+       </select> <span>or paste your url:</span>
+     </div>
+     <div style="text-align:center">
 
-       <div id = "information">
-        
+        <form>
+          <input type="text" name="url" id="url" required>
+        </form>
+        <button onclick="yourPlaylist()">Let's get it!</button>
+      </div><br>
+       <div class = "bitrates">Choose bitrate</div>
+       <div id="buttons">
+
        </div>
-       <div>
-         Wybierz bitrate<br>
-         <button i></button>
+       <div id = "information"><br>
+         <div class = "bitrates">Video Information</div>
+         <div id = "info">
+          <div>Bitrate: <span id="b"></span></div>
+          <div>Height: <span id="h"></span></div>
+          <div>Width: <span id="w"></span></div>
+          <div>Video codec: <span id="v"></span></div>
+          <div>Audio codec: <span id="a"></span></div>
+        </div>
        </div>
+
 
    </div>
 
@@ -50,65 +69,104 @@
 <!-- Or if you want a more recent canary version -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/hls.js@canary"></script> -->
 <script type="text/javascript">
-            videoSrc = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
-            
-            loadVideo(videoSrc);
-			
-            $(document).ready(function(){
-                $("#videoSelect").change(function() {
-                var videoValue = $(this).val();
+  const videoEl = document.getElementsByTagName("video")[0];
+  const videos = [
+    'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+    'https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8',
+    'https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8',
+    'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8'
+  ]
 
-                if(videoValue==1){
-                    console.log("Inside"+videoValue);
-                    //$("#video").attr('src','video/1.mp4');
-                    videoSrc = 'https://raw.githubusercontent.com/RozannaBoczar/PPIM/master/jefree/hsl_playlist1.m3u8';
-                    loadVideo(videoSrc);
-                }
-                else if(videoValue==2){
-                    console.log("Inside"+videoValue);
-                  //$("#video").attr('src','video/2.mp4');
-                  videoSrc = 'https://raw.githubusercontent.com/RozannaBoczar/PPIM/master/bts/hsl_playlist2.m3u8';
-                  loadVideo(videoSrc);
-                }
-                else{
-                    console.log("Inside"+videoValue);
-                    //$("#video").attr('src','video/3.mp4');
-                    videoSrc = 'https://raw.githubusercontent.com/RozannaBoczar/PPIM/master/anime/hsl_playlist3.m3u8';
-                    loadVideo(videoSrc);
-                }
+  function choseVideo() {
+    let chose = document.getElementById("videoSelect").value;
+    loadVideo(videos[chose]);
+}
 
-            });
-            });
+  function playDefault() {
+    let chose = document.getElementById("videoSelect");
+    chose.value = 0;
+    loadVideo(videos[0]);
+  }
 
-            function loadVideo(videoSrc){
-              var video = document.getElementById('video');
-              if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-                
+  function loadVideo(videoSrc) {
 
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                  video.play();
-				  var text = document.getElementById('information');
-				  text.innerHTML = hls.levels[0].url;
-				  console.log(hls.levels);
-				  
-                });
-              }
-              else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-                video.addEventListener('loadedmetadata', function() {
-				
-                  video.play();
-				  var text = document.getElementById('information');
-				  text.innerHTML = hls.levels[0].url;
-				  console.log(hls.levels);
-				  
-                });
-              }
-            }
+    if (Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function() {
+      video.play();
+      createButtonsBitrate();
+      updateInfo();
+    });
+  }
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = videoSrc;
+      video.addEventListener('loadedmetadata', function() {
+      video.play();
+    });
+  }
+
+  }
+
+  function changeBitrate() {
+    x = this.value
+    hls.loadLevel = x;
+    hls.currentLevel = x;
+    console.log(hls.levels);
+    console.log(hls.currentLevel)
+    console.log(hls.currentLevel);
+    updateInfo();
+  }
 
 
+  function createButtonsBitrate() {
+    let d = document.getElementById("buttons");
+    if(d.innerHTML != ""){
+      d.innerHTML = "";
+    }
+    for(let i=0;i<5;i++){
+      let e = document.createElement("button");
+      e.value = i;
+      e.addEventListener('click', changeBitrate);
+      e.class = "bear"
+      e.innerHTML = hls.levels[i].bitrate;
+      d.appendChild(e);
+    }
+  }
+
+
+
+
+
+  function updateInfo() {
+    var lvl = hls.loadLevel;
+    console.log(lvl)
+    document.getElementById('b').innerHTML = hls.levels[lvl].bitrate;
+    document.getElementById('h').innerHTML = hls.levels[lvl].height;
+    document.getElementById('w').innerHTML = hls.levels[lvl].width;
+    document.getElementById('v').innerHTML = hls.levels[lvl].videoCodec;
+    document.getElementById('a').innerHTML = hls.levels[lvl].audioCodec;
+
+  }
+
+  function validURL(str) {
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return !!pattern.test(str);
+  }
+
+  function yourPlaylist() {
+    let v = document.getElementById("url").value
+    if(validURL(v)){
+    loadVideo(v);
+  }else{
+    alert("Wrong Url!")
+  }
+  }
 
 </script>
